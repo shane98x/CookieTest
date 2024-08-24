@@ -1,0 +1,40 @@
+﻿@page "/logout"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using CookieTest.Blazor.Providers;
+
+@attribute [Authorize]
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider authStateProvider
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+<button class="btn btn-primary" @onclick="LogoutAsync">Logout</button>
+
+@code {
+    private int currentCount = 0;
+    private string? errorMessage;
+
+    private async Task LogoutAsync()
+    {
+        try
+        {
+            var customAuthProvider = (CustomAuthenticationStateProvider)authStateProvider;
+            await customAuthProvider.LogoutAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+}

@@ -1,0 +1,82 @@
+﻿@page "/user"
+
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
+@inject IHttpClientFactory HttpClientFactory
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Users</h1>
+
+<p>This component demonstrates fetching user data from the server.</p>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+else if (users == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (users.Length == 0)
+{
+    <p>No users found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.Id</td>
+                    <td>@user.Username</td>
+                    <td>@user.Email</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private UserM[]? users = Array.Empty<UserM>();
+    private string? errorMessage;
+
+    private HttpClient Http => HttpClientFactory.CreateClient("API");
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            users = await Http.GetFromJsonAsync<UserM[]>("Api/User");
+        }
+        catch (HttpRequestException ex)
+        {
+            // Handle HTTP request errors
+            errorMessage = $"Request error: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            // Handle other potential errors
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
+    }
+
+    public class UserM
+    {
+        public int Id { get; set; }
+        public string Username { get; set; }
+        public string Email { get; set; }
+    }
+}

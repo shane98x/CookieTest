@@ -1,0 +1,96 @@
+﻿@page "/"
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@using Microsoft.AspNetCore.Components.Authorization
+@using CookieTest.Blazor.Providers
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider authStateProvider
+
+<PageTitle>Login</PageTitle>
+
+<h3>Login</h3>
+
+@if (loginFailed)
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
+<EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="username">Username</label>
+        <InputText id="username" class="form-control" @bind-Value="loginModel.Username" />
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@code {
+    private LoginModel loginModel = new LoginModel();
+    private bool loginFailed;
+    private string errorMessage;
+
+    private HttpClient Http => HttpClientFactory.CreateClient("API");
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            var customAuthProvider = (CustomAuthenticationStateProvider)authStateProvider;
+            await customAuthProvider.LoginAsync(loginModel);
+        }
+        catch (HttpRequestException ex)
+        {
+            loginFailed = true;
+            errorMessage = "An error occurred while communicating with the server. Please try again later.";
+            // Optionally log the exception
+        }
+        catch (Exception ex)
+        {
+            loginFailed = true;
+            errorMessage = "An unexpected error occurred. Please try again later.";
+            // Optionally log the exception
+        }
+    }
+
+    private async Task<string> GetErrorMessage(HttpResponseMessage response)
+    {
+        var statusCode = (int)response.StatusCode;
+        string message = statusCode switch
+        {
+            400 => "Invalid request. Please check your input and try again.",
+            401 => "Unauthorized. Please check your username and password.",
+            403 => "Forbidden. You don't have permission to access this resource.",
+            404 => "Resource not found.",
+            500 => "Internal server error. Please try again later.",
+            _ => "An unexpected error occurred."
+        };
+
+        // Optionally read error details from response content if available
+        if (response.Content != null)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            // Here you can parse content if it provides more details
+            // For example: message = $"Server error: {content}";
+        }
+
+        return message;
+    }
+
+    public class LoginModel
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+}
