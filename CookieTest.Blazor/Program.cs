@@ -20,7 +20,7 @@ builder.Services.AddScoped<UserStore>();
 builder.Services.AddScoped<CookieHandler>();
 
 builder.Services.AddHttpClient("API", options => {
-    options.BaseAddress = new Uri("https://localhost:7078");
+    options.BaseAddress = new Uri("https://localhost:5092");
 })
 .AddHttpMessageHandler<CookieHandler>();
 
