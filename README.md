@@ -39,13 +39,6 @@ dotnet run
 The authorization middleware used in the Blazor WASM app is purely for manipulating the UI. This can easily be overriden by people with malicious intents.
 Not an issue if they don't have valid credentials (cookie) to use said pages. 
 
-If using the IDE, change this in the program.cs of the Blazor application:
-```
-builder.Services.AddHttpClient("API", options => {
-    options.BaseAddress = new Uri("https://localhost:7078");
-})
-.AddHttpMessageHandler<CookieHandler>();
-```
 
 
 
