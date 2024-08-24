@@ -5,7 +5,7 @@ A Blazor WASM application consuming a Web Api using authentication with cookies 
 
 Clone the repository using Git (or download the ZIP package):
 ```
-https://github.com/shane98x/CookieTest.git
+git clone https://github.com/shane98x/CookieTest.git
 ```
 Navigate to the folder (modify path if needed:
 ```
