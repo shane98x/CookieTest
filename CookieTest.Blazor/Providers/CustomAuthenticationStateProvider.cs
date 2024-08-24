@@ -16,7 +16,6 @@ namespace CookieTest.Blazor.Providers
         private readonly IHttpClientFactory httpClientFactory;
         private readonly NavigationManager navigationManager;
         private readonly UserStore store;
-        private bool isUserAuthenticated = false; 
 
         public CustomAuthenticationStateProvider(IHttpClientFactory httpClientFactory, NavigationManager navigationManager, UserStore store)
         {
@@ -53,7 +52,6 @@ namespace CookieTest.Blazor.Providers
             else
             { 
                 await store.SaveUserAsync(false);
-                isUserAuthenticated = false;
             }
         }
 
