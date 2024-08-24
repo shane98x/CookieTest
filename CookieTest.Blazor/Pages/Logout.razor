@@ -1,18 +1,35 @@
 ﻿@page "/logout"
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
-@using CookieTest.Blazor.Providers;
+@using CookieTest.Blazor.Providers
+@using System.Security.Claims
 
 @attribute [Authorize]
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
-@inject AuthenticationStateProvider authStateProvider
+@inject AuthenticationStateProvider AuthStateProvider
 
-<PageTitle>Counter</PageTitle>
+<PageTitle>Logout</PageTitle>
 
-<h1>Counter</h1>
+<h1>Your claims</h1>
 
-<p role="status">Current count: @currentCount</p>
+@if (claims == null)
+{
+    <p>Loading claims...</p>
+}
+else if (claims.Any())
+{
+    <ul>
+        @foreach (var claim in claims)
+        {
+            <li>@claim.Type: @claim.Value</li>
+        }
+    </ul>
+}
+else
+{
+    <p>No claims found.</p>
+}
 
 @if (errorMessage != null)
 {
@@ -22,15 +39,23 @@
 <button class="btn btn-primary" @onclick="LogoutAsync">Logout</button>
 
 @code {
-    private int currentCount = 0;
     private string? errorMessage;
+
+    private IEnumerable<Claim>? claims;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        claims = authState.User.Claims;
+    }
 
     private async Task LogoutAsync()
     {
         try
         {
-            var customAuthProvider = (CustomAuthenticationStateProvider)authStateProvider;
+            var customAuthProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
             await customAuthProvider.LogoutAsync();
+            NavigationManager.NavigateTo("/");
         }
         catch (Exception ex)
         {

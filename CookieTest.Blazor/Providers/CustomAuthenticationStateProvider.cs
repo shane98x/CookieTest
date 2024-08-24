@@ -8,6 +8,7 @@ using CookieTest.Blazor.Models;
 using Microsoft.AspNetCore.Components;
 using static CookieTest.Blazor.Pages.Home;
 using CookieTest.Blazor.Store;
+using Microsoft.Extensions.Options;
 
 namespace CookieTest.Blazor.Providers
 {
@@ -26,14 +27,42 @@ namespace CookieTest.Blazor.Providers
 
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var user = await store.GetUserAsync();
+            var user = new ClaimsPrincipal(new ClaimsIdentity());
 
-            var identity = user
-                ? new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "OK") }, nameof(CustomAuthenticationStateProvider))
-                : new ClaimsIdentity();
+            var client = httpClientFactory.CreateClient("API");
 
-            var userClaims = new ClaimsPrincipal(identity);
-            return await Task.FromResult(new AuthenticationState(userClaims));
+            try
+            {
+                var route = "Api/Auth/Info";
+                var response = await client.GetAsync(route);
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                };
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    var claimsData = JsonSerializer.Deserialize<List<ClaimResult>>(responseContent, options);
+
+                    var claimsIdentity = new ClaimsIdentity(nameof(CustomAuthenticationStateProvider));
+
+                    foreach (var claim in claimsData)
+                    {
+                        claimsIdentity.AddClaim(new Claim(claim.Type, claim.Value));
+                    }
+
+                    user = new ClaimsPrincipal(claimsIdentity);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return new AuthenticationState(user);
         }
 
         public async Task LoginAsync(LoginModel model)

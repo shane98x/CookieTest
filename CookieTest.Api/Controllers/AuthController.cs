@@ -20,6 +20,7 @@ namespace CookieTest.Api.Controllers
             _context = context;
         }
 
+        [AllowAnonymous]
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] AuthRequest request)
         {
