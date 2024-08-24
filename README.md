@@ -1,6 +1,19 @@
 # Blazor WebAssembly + Web API (both .NET)
 A Blazor WASM application consuming a Web Api using authentication with cookies and authorization middleware without the identity package. Powered by an InMemory database.
 
+## Credentials
+
+Use this to test the UI: 
+
+Username:
+```
+user
+```
+Password:
+```
+pw
+```
+
 ## Installation
 
 Clone the repository using Git (or download the ZIP package):
