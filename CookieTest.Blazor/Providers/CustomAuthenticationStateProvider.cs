@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CookieTest.Blazor.Models;
 using Microsoft.AspNetCore.Components;
 using static CookieTest.Blazor.Pages.Home;
+using CookieTest.Blazor.Store;
 
 namespace CookieTest.Blazor.Providers
 {
@@ -14,22 +15,26 @@ namespace CookieTest.Blazor.Providers
     {
         private readonly IHttpClientFactory httpClientFactory;
         private readonly NavigationManager navigationManager;
+        private readonly UserStore store;
         private bool isUserAuthenticated = false; 
 
-        public CustomAuthenticationStateProvider(IHttpClientFactory httpClientFactory, NavigationManager navigationManager)
+        public CustomAuthenticationStateProvider(IHttpClientFactory httpClientFactory, NavigationManager navigationManager, UserStore store)
         {
             this.httpClientFactory = httpClientFactory;
             this.navigationManager = navigationManager;
+            this.store = store;
         }
 
-        public override Task<AuthenticationState> GetAuthenticationStateAsync()
+        public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var identity = isUserAuthenticated
+            var user = await store.GetUserAsync();
+
+            var identity = user
                 ? new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "OK") }, nameof(CustomAuthenticationStateProvider))
                 : new ClaimsIdentity();
 
-            var user = new ClaimsPrincipal(identity);
-            return Task.FromResult(new AuthenticationState(user));
+            var userClaims = new ClaimsPrincipal(identity);
+            return await Task.FromResult(new AuthenticationState(userClaims));
         }
 
         public async Task LoginAsync(LoginModel model)
@@ -41,12 +46,13 @@ namespace CookieTest.Blazor.Providers
 
             if (response.IsSuccessStatusCode)
             {
-                isUserAuthenticated = true;
+                await store.SaveUserAsync(true);
                 NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
-                navigationManager.NavigateTo("/User"); 
+                navigationManager.NavigateTo("/User");
             }
             else
-            {
+            { 
+                await store.SaveUserAsync(false);
                 isUserAuthenticated = false;
             }
         }
@@ -60,13 +66,14 @@ namespace CookieTest.Blazor.Providers
 
             if (response.IsSuccessStatusCode)
             {
-                isUserAuthenticated = false;
                 NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+                await store.ClearUserAsync();
                 navigationManager.NavigateTo("/"); 
             }
             else
             {
-                isUserAuthenticated = true;
+                // Logout failed
+                await store.SaveUserAsync(true);
             }
         }
     }

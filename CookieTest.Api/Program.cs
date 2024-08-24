@@ -58,19 +58,19 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<CookieDbContext>();
 
-    // Ensure the database is created
     context.Database.EnsureCreated();
 
-    // Seed the database
     context.Seed();
 }
 
-var cookiePolicyOptions = new CookiePolicyOptions
-{
-    MinimumSameSitePolicy = SameSiteMode.Strict,
-};
 
-app.UseCookiePolicy(cookiePolicyOptions);
+// Can set a dynamic policy like this later
+//var cookiePolicyOptions = new CookiePolicyOptions
+//{
+//    MinimumSameSitePolicy = SameSiteMode.Strict,
+//};
+
+//app.UseCookiePolicy(cookiePolicyOptions);
 
 app.UseHttpsRedirection();
 
