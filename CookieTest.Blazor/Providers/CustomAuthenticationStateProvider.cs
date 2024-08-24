@@ -64,9 +64,9 @@ namespace CookieTest.Blazor.Providers
 
             if (response.IsSuccessStatusCode)
             {
-                NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
                 await store.ClearUserAsync();
-                navigationManager.NavigateTo("/"); 
+                navigationManager.NavigateTo("/");
+                NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
             }
             else
             {
