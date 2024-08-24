@@ -23,8 +23,15 @@ Build the solution:
 dotnet build
 ```
 
-Run the application: 
+Run the API:
 ```
+cd CookieTest.API
+dotnet run
+```
+
+Run Blazor WASM:
+```
+cd CookieTest.Blazor
 dotnet run
 ```
 
