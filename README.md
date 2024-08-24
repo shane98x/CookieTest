@@ -4,7 +4,34 @@ A Blazor WASM application consuming a Web Api using authentication with cookies 
 ## Installation
 
 Clone the repository using Git (or download the ZIP package):
+```
+https://github.com/shane98x/CookieTest.git
+```
+Navigate to the folder (modify path if needed:
+```
+cd CookieTest
+```
+## Run
 
-```bash
-git clone https://github.com/username/repository-name.git
-cd repository-name
+Restore the packages:
+```
+dotnet restore
+```
+
+Build the solution:
+```
+dotnet build
+```
+
+Run the application: 
+```
+dotnet run
+```
+
+## Information
+The authorization middleware used in the Blazor WASM app is purely for manipulating the UI. This can easily be overriden by people with malicious intents.
+Not an issue if they don't have valid credentials (cookie) to use said pages. 
+
+
+
+
