@@ -29,7 +29,7 @@ cd CookieTest.API
 dotnet run
 ```
 
-Run Blazor WASM:
+Run Blazor WASM in second terminal:
 ```
 cd CookieTest.Blazor
 dotnet run
